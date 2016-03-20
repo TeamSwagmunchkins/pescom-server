@@ -1,3 +1,15 @@
+//dependencies
+//body-parser : 1.14.2
+//express     : 4.13.4
+//json-socket : 0.1.2
+//jsonwebtoken: 5.5.4
+//htmlparser  : 1.7.7
+//net         : 1.0.2
+//mongoose    : 4.3.6
+//python-shell : 0.3.0
+//util        : 0.10.3
+//morgan      : 1.6.1
+
 var express     = require('express');
 var app         = express();
 var net         = require('net');
@@ -5,14 +17,13 @@ var JsonSocket  = require('json-socket');
 var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
-var password = require('password-hash-and-salt');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./models/user'); // get our mongoose model
-var OTP1    = require('./models/otp');
+var OTP1    = require('./models/otp'); // get our mongoose model
 var PythonShell = require('python-shell');
 
-var OTP_TIME_OUT = 300000
+var OTP_TIME_OUT = 300000; //Time in milliseconds
 
 // =======================
 // configuration =========
