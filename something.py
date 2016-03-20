@@ -4,12 +4,10 @@ from getpass import getpass
 import sys
 import os
 from stat import *
-#import pyotp
-#import socket
 import random
 
 
-message = str(random.randint(1000,9999)) #str(pyotp.TOTP(pyotp.random_base32()).now())
+message = str(random.randint(1000,9999))
 number = sys.argv[1];
 
 if __name__ == "__main__":    
@@ -33,7 +31,7 @@ if __name__ == "__main__":
         usock =opener.open(url, data)
     except IOError:
         print("error")
-        #return()
+        
 
     jession_id =str(cj).split('~')[1].split(' ')[0]
     send_sms_url = 'http://site24.way2sms.com/smstoss.action?'
@@ -43,7 +41,6 @@ if __name__ == "__main__":
         sms_sent_page = opener.open(send_sms_url,send_sms_data)
     except IOError:
         print("error")
-        #return()
 
     print(message) 
-    #return ()
+    
