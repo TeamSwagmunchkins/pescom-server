@@ -59,11 +59,15 @@ setupRoute.use(function(req,res,next){
 		}
 });
 
-setupRoute.post('/signup', function(req, res) {
+setupRoute.post('/login', function(req, res) {
 							//registers new user with his/her phone_number and sends the otp to the phone_number
-							var user = new User({
-								phone_number: req.body.phone_number
-							});
+							
+						User.findOne({phone_number:req.body.phone_number},function(err,user){
+							if(!user){
+								user = new User({
+									phone_number: req.body.phone_number
+								});
+							}
 							var options = {
 								args: [req.body.phone_number]
 							};
@@ -101,6 +105,7 @@ setupRoute.post('/signup', function(req, res) {
 							console.log('User saved successfully');
 							res.json({ success: true });
 						});
+							});
 });
 
 
