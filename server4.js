@@ -239,11 +239,11 @@ apiRoutes.post('/call', function(req, res) {
 														socket.connect(port1,host);
 														if(callee["active"]){
 															socket.on('connect',function(){
-																socket.sendMessage("TYPE_INCOMING_CALL:" + caller.phone_number +"#!");
+																socket.sendMessage("1:" + caller.phone_number +"#!");
 																socket.on('data',function(message){
 																	console.log(message.toString("utf8"));
 																	m = message.toString("utf8").split(":");
-																	if(m[0]=="0"){
+																	if(m[0]=="0") {
 																		res.json({success:false,message:"Client Busy"});
 																	}
 																	else{
