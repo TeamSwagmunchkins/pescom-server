@@ -271,16 +271,20 @@ apiRoutes.post('/call', function(req, res) {
 
 
 apiRoutes.post('/message_send',function(req,res){
+																console.log("message_send invoked");
 																var fromPhNo=req.body.from_phone_number;
 																var toPhNo=req.body.to_phone_number;
 																var msg=req.body.message;
 																User.findOne({
 																			phone_number: req.body.to_phone_number
 																},function(err,receiver){
+
 																			if(err){
+																				console.log("error happened in line 283");
 																				res.status(404).send('Not Found');
 																			}
 																			else if(!receiver){
+																				console.log("error happened in line 287");
 																				res.status(404).send('Not Found');
 																			}
 																			else{
@@ -292,6 +296,7 @@ apiRoutes.post('/message_send',function(req,res){
 																				msg.save(function(err){
 																						if(err) throw err;
 																					});
+																					console.log("error happened in line 299");
 																				MsgPending.findAll({
 																						to_phone_number:toPhNo
 																				},function(err,msgs){
