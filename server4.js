@@ -273,7 +273,7 @@ apiRoutes.post('/call', function(req, res) {
 														host = callee.ip_address;
 														var socket = new JsonSocket(new net.Socket());
 														socket.connect(port1,host);
-														if(callee["active"]){
+														if(true){
 															socket.on('connect',function(){
 																socket.sendMessage("1:" + caller.phone_number +"#!");
 																socket.on('data',function(message){
