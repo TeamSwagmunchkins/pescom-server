@@ -274,7 +274,7 @@ apiRoutes.post('/message_send',function(req,res){
 																console.log("message_send invoked");
 																var fromPhNo=req.body.from_phone_number;
 																var toPhNo=req.body.to_phone_number;
-																var msg=req.body.message;
+																var sendingmsg=req.body.message;
 																User.findOne({
 																			phone_number: req.body.to_phone_number
 																},function(err,receiver){
@@ -291,7 +291,7 @@ apiRoutes.post('/message_send',function(req,res){
 																				var msg=new MsgPending({
 																						to_phone_number:toPhNo,
 																						from_phone_number:fromPhNo,
-																						message:msg
+																						message:sendingmsg
 																				});
 																				msg.save(function(err){
 																						if(err) throw err;
