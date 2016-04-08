@@ -335,11 +335,12 @@ apiRoutes.post('/message_receive',function(req,res){
 											var sentmsg=new MsgSnt(msgs[i]);
 											sentmsg.save(function(err){
 												if(err) throw err; 
-											})
+											});
+											MsgPending.remove(msgs[i]);
 										}
 										res.json({count:msgs.length,messages:msgs});
 									}
-						}).remove().exec();
+						});
 });
 
 // route to return all users 
