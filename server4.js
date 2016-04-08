@@ -74,7 +74,10 @@ setupRoute.post('/login', function(req, res) {
 								args: [req.body.phone_number]
 							};
 							PythonShell.run('./something.py',options, function (err, results) {
-								if (err) throw err;
+								if (err)){
+										console.log(err);
+										res.status(500).send("Internal Server Error");
+									} 
 								OTP1.findOne({phone_number:req.body.phone_number},function(err,otp3){
 									if(!otp3){
 										console.log('results: %j', results);
@@ -85,7 +88,10 @@ setupRoute.post('/login', function(req, res) {
 										});
 										console.log(otp1.otp);
 										otp1.save(function(err){
-												if(err) throw err;
+												if(err)){
+													console.log(err);
+													res.status(500).send("Internal Server Error");
+												} 
 												console.log("otp saved");
 										});
 									}
@@ -95,7 +101,10 @@ setupRoute.post('/login', function(req, res) {
 										otp3['time']=Date.now();
 										console.log(otp3.otp);
 										otp3.save(function(err){
-											if(err) throw err;
+											if(err)){
+													console.log(err);
+													res.status(500).send("Internal Server Error");
+												} 
 											console.log("otp saved");
 										});
 									}
@@ -103,9 +112,12 @@ setupRoute.post('/login', function(req, res) {
 							});
 						// save the user
 						user.save(function(err) {
-							if (err) throw err;
+							if (err){
+								console.log(err);
+								res.status(500).send("Internal Server Error");
+							} 
 							console.log('User saved successfully');
-							res.json({ success: true });
+							res.status(200).send("OK");
 						});
 							});
 });
@@ -121,20 +133,26 @@ apiRoutes.post('/authenticate', function(req, res) {
 					User.findOne({
 							phone_number: req.body.phone_number
 						}, function(err, user) {
-								if (err) throw err;
+								if (err){
+									console.log(err);
+									res.status(500).send("Internal Server Error");
+								}
 								if (!user) {
-									res.json({ success: false, message: 'Authentication failed. User not found.' });
+									res.status(401).send("Unauthorized");
 								}
 								else if (user) {
 									// check if OTP matches
 									OTP1.findOne({phone_number:req.body.phone_number},function(err,fetchedOtp){
 											var curDate = new Date();
-											if(err) throw err;
+											if(err) {
+												console.log(err);
+												res.status(500).send("Internal Server Error");
+											}											
 											if(!fetchedOtp){
-												res.json({success:false,message:"You are not Authenticated"});
+												res.status(401).send("Unauthorized");
 											}
 											else if(curDate - fetchedOtp.time > OTP_TIME_OUT){
-												res.json({success:false,message:'OTP Expired'});
+												res.status(410).send("OTP Expired");
 											}
 											else if(req.body.otp == fetchedOtp.otp)
 											{
@@ -142,14 +160,12 @@ apiRoutes.post('/authenticate', function(req, res) {
 													expiresInMinutes: 14400000 // expires in 24 hours
 												});
 												res.json({
-													success: true,
-													message: 'Enjoy your token!',
 													user: req.body.phone_number,
 													token: token
 												});
 											}
 											else{
-												res.json({success:false, message:"otp not matching"});
+												res.status(406).send("OTP incorrect");
 											}
 									});
 								}
@@ -194,9 +210,12 @@ apiRoutes.post('/update_ip', function(req, res) {
 									phone_number: req.body.phone_number
 								},
 						function(err, user) {
-							if (err) throw err;
+							if (err){
+								console.log(err);
+								res.status(500).send("Internal Server Error");
+							}
 							if (!user) {
-								res.json({ success: false, message: 'Invalid User.' });
+								res.status(401).send("Unauthorized");
 							}
 							else{
 								user["ip_address"] = req.body.ip_address;
@@ -204,10 +223,19 @@ apiRoutes.post('/update_ip', function(req, res) {
 								user["active"] = true;
 								user["last_updated_time"] = Date.now();
 								user.save(function(err){
-											if(err) throw err;
+											if(err) {
+												console.log(err);
+												res.status(500).send("Internal Server Error");
+											}
 											console.log("IP Updated");
-										})
-								res.json({success:true,message:"IP Updated successfully"});
+										});
+								MsgPending.find({to_phone_number:req.body.phone_number},function(err,msgs){
+											if(err){
+												console.log(err);
+											}
+											res.json({message:"IP Updated successfully",pendingMsgCount:msgs.length});
+								});
+								
 							}
 						});
 });
@@ -222,7 +250,10 @@ apiRoutes.post('/call', function(req, res) {
 						User.findOne({
 									phone_number: req.body.from_phone_number
 									},function(err, caller) {
-										if (err) throw err;
+										if (err){
+											console.log(err);
+											res.status(500).send("Internal Server Error");
+										}
 										if (!caller) {
 											res.status(401).send('Unauthorized');
 										}
@@ -230,7 +261,10 @@ apiRoutes.post('/call', function(req, res) {
 											User.findOne({
 													phone_number: req.body.to_phone_number
 												},function(err, callee) {
-													if (err) throw err;
+													if (err) {
+														console.log(err);
+														res.status(500).send("Internal Server Error");
+													} 
 													if (!callee) {
 														res.status(404).send('Not Found');
 													}
@@ -246,23 +280,23 @@ apiRoutes.post('/call', function(req, res) {
 																	console.log(message.toString("utf8"));
 																	m = message.toString("utf8").split(":");
 																	if(m[0]=="0") {
-																		res.json({success:false,message:"Client Busy"});
+																		res.status(403).send("Client BUSY");
 																	}
 																	else{
-																		res.json({success:true,ip_address: callee.ip_address,port:m[1]});
+																		res.json({ip_address: callee.ip_address,port:m[1]});
 																	}
 																});
 															});
 															socket.on("error",function(){
 																callee["active"] = false; 
 																callee.save(function(err){
-																	if(err) throw err;
+																	if(err) console.log(err);
 																});
-																res.json({success:false,message:"User not Reachable"});  
+																res.status(404).send("User not Reachable");  
 															});
 														}
 														else{
-														   res.json({success:false,message:"User not Reachable"});
+														  res.status(404).send("User not Reachable");
 														}  
 													}
 												});
@@ -281,11 +315,11 @@ apiRoutes.post('/message_send',function(req,res){
 																},function(err,receiver){
 
 																			if(err){
-																				console.log("error happened in line 283");
+																				console.log(err);
 																				res.status(404).send('Not Found');
 																			}
 																			else if(!receiver){
-																				console.log("error happened in line 287");
+																				console.log(err);
 																				res.status(404).send('Not Found');
 																			}
 																			else{
@@ -295,14 +329,18 @@ apiRoutes.post('/message_send',function(req,res){
 																						message:sendingmsg
 																				});
 																				msg.save(function(err){
-																						if(err) throw err;
+																						if(err)
+																						{
+																							 console.log(err);
+																							 res.status(500).send("Internal Server Error");
+																						}
 																					});
 																					//console.log("error happened in line 299");
 																				MsgPending.find({
 																						to_phone_number:toPhNo
 																				},function(err,msgs){
 																						if(err){
-																							throw err;
+																								console.log(err);
 																						}
 																						else{
 																							if(receiver.port&&receiver.ip_address)
@@ -313,6 +351,7 @@ apiRoutes.post('/message_send',function(req,res){
 																								socket.sendMessage("3:"+msgs.length+"#!");	
 																								});
 																								socket.on("error",function(){
+																									console.log("socket error");
 																								});
 																							}
 																						}
@@ -334,11 +373,12 @@ apiRoutes.post('/message_receive',function(req,res){
 										for(var i in msgs){
 											var sentmsg=new MsgSnt(msgs[i]);
 											sentmsg.save(function(err){
-												if(err) throw err; 
+												if(err) console.log(err);
 											});
 											MsgPending.remove(msgs[i],function(err){
 													if(err){
-														console.log("Error at 341");
+														console.log(err);
+														//res.status(500).send("Internal Server Error");
 													}
 												});
 										}
