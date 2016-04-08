@@ -336,7 +336,7 @@ apiRoutes.post('/message_receive',function(req,res){
 										}
 										res.json({count:msgs.length,messages:msgs});
 									}
-						}).remove().exec();
+						});
 });
 
 // route to return all users 
