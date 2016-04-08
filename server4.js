@@ -316,8 +316,8 @@ apiRoutes.post('/message_send',function(req,res){
 																			});
 																});
 
-apiRoutes.post('/message_recieve',function(req,res){
-						MsgPending.findAll({
+apiRoutes.post('/message_receive',function(req,res){
+						MsgPending.find({
 							to_phone_number:req.body.to_phone_number
 						},function(err,msgs){
 									if(err){
