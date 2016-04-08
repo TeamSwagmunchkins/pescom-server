@@ -336,7 +336,11 @@ apiRoutes.post('/message_receive',function(req,res){
 											sentmsg.save(function(err){
 												if(err) throw err; 
 											});
-											MsgPending.remove(msgs[i]);
+											MsgPending.remove(msgs[i],function(err){
+													if(err){
+														console.log("Error at 341");
+													}
+												});
 										}
 										res.json({count:msgs.length,messages:msgs});
 									}
