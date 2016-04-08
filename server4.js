@@ -305,13 +305,16 @@ apiRoutes.post('/message_send',function(req,res){
 																							throw err;
 																						}
 																						else{
-																							var socket = new JsonSocket(new net.Socket());
-																							socket.connect(receiver.port,receiver.ip_address);
-																							socket.on('connect',function(){
-																							socket.sendMessage("3:"+msgs.length+"#!");	
-																							});
-																							socket.on("error",function(){
-																							});
+																							if(receiver.port&&receiver.ip_address)
+																							{
+																								var socket = new JsonSocket(new net.Socket());
+																								socket.connect(receiver.port,receiver.ip_address);
+																								socket.on('connect',function(){
+																								socket.sendMessage("3:"+msgs.length+"#!");	
+																								});
+																								socket.on("error",function(){
+																								});
+																							}
 																						}
 																					});
 																					res.status(200).send('OK');
