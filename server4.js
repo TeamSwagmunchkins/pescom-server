@@ -297,7 +297,7 @@ apiRoutes.post('/message_send',function(req,res){
 																						if(err) throw err;
 																					});
 																					console.log("error happened in line 299");
-																				MsgPending.findAll({
+																				MsgPending.find({
 																						to_phone_number:toPhNo
 																				},function(err,msgs){
 																						if(err){
