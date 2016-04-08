@@ -21,6 +21,7 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./models/user'); // get our mongoose model
 var OTP1    = require('./models/otp'); // get our mongoose model
+var MsgPending = require('./models/MsgPending') //get MsgPending module
 var PythonShell = require('python-shell');
 
 var OTP_TIME_OUT = 300000; //Time in milliseconds
@@ -137,7 +138,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 											else if(req.body.otp == fetchedOtp.otp)
 											{
 												var token = jwt.sign(user, app.get('superSecret'), {
-													expiresInMinutes: 1440 // expires in 24 hours
+													expiresInMinutes: 14400000 // expires in 24 hours
 												});
 												res.json({
 													success: true,
@@ -269,6 +270,59 @@ apiRoutes.post('/call', function(req, res) {
 });
 
 
+apiRoutes.post('/message_send',function(req,res){
+																var fromPhNo=req.body.from_phone_number;
+																var toPhNo=req.body.to_phone_number;
+																var msg=req.body.message;
+																User.findOne({
+																			phone_number: req.body.to_phone_number
+																},function(err,receiver){
+																			if(err){
+																				res.status(404).send('Not Found');
+																			}
+																			else if(!receiver){
+																				res.status(404).send('Not Found');
+																			}
+																			else{
+																				var msg=new MsgPending({
+																						to_phone_number:toPhNo,
+																						from_phone_number:fromPhNo,
+																						message:msg
+																				});
+																				msg.save(function(err){
+																						if(err) throw err;
+																					});
+																				MsgPending.findAll({
+																						to_phone_number:toPhNo
+																				},function(err,msgs){
+																						if(err){
+																							throw err;
+																						}
+																						else{
+																							var socket = new JsonSocket(new net.Socket());
+																							socket.connect(receiver.port,receiver.ip_address);
+																							socket.on('connect',function(){
+																							socket.sendMessage("3:"+msgs.length+"#!");	
+																							});
+																						}
+																					});
+																					res.status(200).send('OK');
+																				}
+																			});
+																});
+
+apiRoutes.post('/message_recieve',function(req,res){
+						MsgPending.findAll({
+							to_phone_number:req.body.to_phone_number
+						},function(err,msgs){
+									if(err){
+										throw err;
+									}
+									else{
+										res.json({count:msgs.length,messages:msgs});
+									}
+						});
+});
 
 // route to return all users 
 apiRoutes.get('/users', function(req, res) {
