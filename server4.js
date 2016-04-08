@@ -297,7 +297,7 @@ apiRoutes.post('/message_send',function(req,res){
 																				msg.save(function(err){
 																						if(err) throw err;
 																					});
-																					console.log("error happened in line 299");
+																					//console.log("error happened in line 299");
 																				MsgPending.find({
 																						to_phone_number:toPhNo
 																				},function(err,msgs){
@@ -339,7 +339,7 @@ apiRoutes.post('/message_receive',function(req,res){
 										}
 										res.json({count:msgs.length,messages:msgs});
 									}
-						});
+						}).remove().exec();
 });
 
 // route to return all users 
