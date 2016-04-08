@@ -272,32 +272,39 @@ apiRoutes.post('/call', function(req, res) {
 														port1 = callee.port;
 														host = callee.ip_address;
 														var socket = new JsonSocket(new net.Socket());
-														socket.connect(port1,host);
-														if(true){
-															socket.on('connect',function(){
-																socket.sendMessage("1:" + caller.phone_number +"#!");
-																socket.on('data',function(message){
-																	console.log(message.toString("utf8"));
-																	m = message.toString("utf8").split(":");
-																	if(m[0]=="0") {
-																		res.status(403).send("Client BUSY");
-																	}
-																	else{
-																		res.json({ip_address: callee.ip_address,port:m[1]});
-																	}
-																});
-															});
-															socket.on("error",function(){
-																callee["active"] = false; 
-																callee.save(function(err){
-																	if(err) console.log(err);
-																});
-																res.status(404).send("User not Reachable");  
-															});
+														if(port1&&host){
+																socket.connect(port1,host);
+																if(true){
+																	socket.on('connect',function(){
+																		socket.sendMessage("1:" + caller.phone_number +"#!");
+																		socket.on('data',function(message){
+																			console.log(message.toString("utf8"));
+																			m = message.toString("utf8").split(":");
+																			if(m[0]=="0") {
+																				res.status(403).send("Client BUSY");
+																			}
+																			else{
+																				res.json({ip_address: callee.ip_address,port:m[1]});
+																			}
+																		});
+																	});
+																	socket.on("error",function(){
+																		callee["active"] = false; 
+																		callee.save(function(err){
+																			if(err) console.log(err);
+																		});
+																		res.status(404).send("User not Reachable");  
+																	});
+																}
+																else{
+																  res.status(404).send("User not Reachable");
+																}  
 														}
-														else{
-														  res.status(404).send("User not Reachable");
-														}  
+														else
+														{
+															 res.status(404).send("User not Reachable");
+														}
+													
 													}
 												});
 											}
