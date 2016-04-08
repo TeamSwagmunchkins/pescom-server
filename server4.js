@@ -21,7 +21,8 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./models/user'); // get our mongoose model
 var OTP1    = require('./models/otp'); // get our mongoose model
-var MsgPending = require('./models/MsgPending') //get MsgPending module
+var MsgPending = require('./models/MsgPending') //get MsgPending mongoose module
+var MsgSnt = require('./models/MsgSnt') //get MsgSnt mongoose module
 var PythonShell = require('python-shell');
 
 var OTP_TIME_OUT = 300000; //Time in milliseconds
@@ -321,12 +322,19 @@ apiRoutes.post('/message_receive',function(req,res){
 							to_phone_number:req.body.to_phone_number
 						},function(err,msgs){
 									if(err){
-										throw err;
+										res.status(404).send('Not Found');
 									}
 									else{
+										//res.json({count:msgs.length,messages:msgs});
+										for(var i in msgs){
+											var sentmsg=new MsgSnt(msgs[i]);
+											sentmsg.save(function(err){
+												if(err) throw err;
+											})
+										}
 										res.json({count:msgs.length,messages:msgs});
 									}
-						});
+						}).remove().exec();
 });
 
 // route to return all users 
