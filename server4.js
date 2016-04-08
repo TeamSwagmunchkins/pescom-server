@@ -331,7 +331,7 @@ apiRoutes.post('/message_receive',function(req,res){
 										for(var i in msgs){
 											var sentmsg=new MsgSnt(msgs[i]);
 											sentmsg.save(function(err){
-												if(err) throw err;
+												if(err) throw err; 
 											})
 										}
 										res.json({count:msgs.length,messages:msgs});
