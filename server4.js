@@ -74,7 +74,7 @@ setupRoute.post('/login', function(req, res) {
 								args: [req.body.phone_number]
 							};
 							PythonShell.run('./something.py',options, function (err, results) {
-								if (err)){
+								if (err){
 										console.log(err);
 										res.status(500).send("Internal Server Error");
 									} 
@@ -88,7 +88,7 @@ setupRoute.post('/login', function(req, res) {
 										});
 										console.log(otp1.otp);
 										otp1.save(function(err){
-												if(err)){
+												if(err){
 													console.log(err);
 													res.status(500).send("Internal Server Error");
 												} 
@@ -101,7 +101,7 @@ setupRoute.post('/login', function(req, res) {
 										otp3['time']=Date.now();
 										console.log(otp3.otp);
 										otp3.save(function(err){
-											if(err)){
+											if(err){
 													console.log(err);
 													res.status(500).send("Internal Server Error");
 												} 
@@ -279,7 +279,7 @@ apiRoutes.post('/call', function(req, res) {
 																		socket.sendMessage("1:" + caller.phone_number +"#!");
 																		socket.on('data',function(message){
 																			console.log(message.toString("utf8"));
-																			m = message.toString("utf8").splice(0,-2).split(":");
+																			m = message.toString("utf8").slice(0,-2).split(":");
 																			if(m[0]=="0") {
 																				res.status(403).send("Client BUSY");
 																			}
