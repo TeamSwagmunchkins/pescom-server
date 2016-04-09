@@ -279,7 +279,7 @@ apiRoutes.post('/call', function(req, res) {
 																		socket.sendMessage("1:" + caller.phone_number +"#!");
 																		socket.on('data',function(message){
 																			console.log(message.toString("utf8"));
-																			m = message.toString("utf8").split(":");
+																			m = message.toString("utf8").splice(0,-2).split(":");
 																			if(m[0]=="0") {
 																				res.status(403).send("Client BUSY");
 																			}
