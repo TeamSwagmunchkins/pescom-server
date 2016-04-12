@@ -154,7 +154,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 											else if(curDate - fetchedOtp.time > OTP_TIME_OUT){
 												res.status(410).send("OTP Expired");
 											}
-											else if(req.body.otp == fetchedOtp.otp)
+											else if(req.body.otp == fetchedOtp.otp.split("\r")[0])
 											{
 												var token = jwt.sign(user, app.get('superSecret'), {
 													expiresInMinutes: 14400000 // expires in 24 hours
@@ -271,30 +271,46 @@ apiRoutes.post('/call', function(req, res) {
 													else{
 														port1 = callee.port;
 														host = callee.ip_address;
-														var socket = new JsonSocket(new net.Socket());
+														var s = new net.Socket();
+														s.setTimeout(5000);
+														s.on('timeout',function(){
+															s.destroy();
+															res.status(404).send("User not Reachable");
+															console.log(" in socket timeout");
+														});
+														var socket = new JsonSocket(s);
 														if(port1&&host){
+																//s.setTimeout(5000);
 																socket.connect(port1,host);
 																if(true){
-																	socket.on('connect',function(){
+																	socket.on('connect',function(err){
 																		socket.sendMessage("1:" + caller.phone_number +"#!");
 																		socket.on('data',function(message){
 																			console.log(message.toString("utf8"));
 																			m = message.toString("utf8").slice(0,-2).split(":");
+																			console.log(m);
 																			if(m[0]=="0") {
 																				res.status(403).send("Client BUSY");
 																			}
 																			else{
 																				res.json({ip_address: callee.ip_address,port:m[1]});
 																			}
+																			//s.end();
 																		});
 																	});
-																	socket.on("error",function(){
-																		callee["active"] = false; 
-																		callee.save(function(err){
-																			if(err) console.log(err);
+																	socket.on("error",function(err){
+																			console.log(err);
+																			if(err.errno=='ECONNRESET'){
+																				return;
+																			}
+																			callee["active"] = false; 
+																			callee.save(function(err){
+																				if(err) console.log(err);
+																			});
+																			//console.log(err);
+																			res.status(404).send("User not Reachable");  
 																		});
-																		res.status(404).send("User not Reachable");  
-																	});
+												
 																}
 																else{
 																  res.status(404).send("User not Reachable");
