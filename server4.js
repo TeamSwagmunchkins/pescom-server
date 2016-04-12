@@ -154,7 +154,7 @@ apiRoutes.post('/authenticate', function(req, res) {
 											else if(curDate - fetchedOtp.time > OTP_TIME_OUT){
 												res.status(410).send("OTP Expired");
 											}
-											else if(req.body.otp == fetchedOtp.otp.split("\r")[0])
+											else if(req.body.otp == fetchedOtp.otp)
 											{
 												var token = jwt.sign(user, app.get('superSecret'), {
 													expiresInMinutes: 14400000 // expires in 24 hours
