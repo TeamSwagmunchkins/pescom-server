@@ -397,7 +397,11 @@ apiRoutes.post('/message_receive',function(req,res){
 // route to return all users 
 apiRoutes.get('/users', function(req, res) {
 		User.find({}, function(err, users) {
-			res.json(users);
+			phone_numbers=[];
+			for(var i in users){
+				phone_numbers.push({"phone_number":users[i].phone_number});
+			}
+			res.json(phone_numbers);
 		});
 });   
 
