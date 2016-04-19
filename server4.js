@@ -269,42 +269,74 @@ apiRoutes.post('/call', function(req, res) {
 														res.status(404).send('Not Found');
 													}
 													else{
+														var msg=new MsgPending({
+																to_phone_number:req.body.to_phone_number,
+																from_phone_number:req.body.from_phone_number,
+																message: "you have a missed call from "+req.body.from_phone_number
+														});
 														port1 = callee.port;
 														host = callee.ip_address;
-														var socket = new JsonSocket(new net.Socket());
+														var s = new net.Socket();
+														s.setTimeout(5000);
+														s.on('timeout',function(){
+															s.destroy();
+															res.status(404).send("User not Reachable");
+															console.log(" in socket timeout");
+														});
+														var socket = new JsonSocket(s);
 														if(port1&&host){
+																//s.setTimeout(5000);
 																socket.connect(port1,host);
 																if(true){
-																	socket.on('connect',function(){
+																	socket.on('connect',function(err){
 																		socket.sendMessage("1:" + caller.phone_number +"#!");
 																		socket.on('data',function(message){
 																			console.log(message.toString("utf8"));
 																			m = message.toString("utf8").slice(0,-2).split(":");
+																			console.log(m);
 																			if(m[0]=="0") {
+																				msg.save(function(err){
+																					if(err) console.log(err);
+																				});
 																				res.status(403).send("Client BUSY");
 																			}
 																			else{
 																				res.json({ip_address: callee.ip_address,port:m[1]});
 																			}
+																			//s.end();
 																		});
 																	});
-																	socket.on("error",function(){
-																		callee["active"] = false; 
-																		callee.save(function(err){
-																			if(err) console.log(err);
+																	socket.on("error",function(err){
+																			console.log(err);
+																			if(err.errno=='ECONNRESET'){
+																				return;
+																			}
+																			callee["active"] = false; 
+																			callee.save(function(err){
+																				if(err) console.log(err);
+																			});
+																			msg.save(function(err){
+																					if(err) console.log(err);
+																				});
+																			//console.log(err);
+																			res.status(404).send("User not Reachable");  
 																		});
-																		res.status(404).send("User not Reachable");  
-																	});
+												
 																}
 																else{
+																	msg.save(function(err){
+																			if(err) console.log(err);
+																		});
 																  res.status(404).send("User not Reachable");
 																}  
 														}
 														else
 														{
+															msg.save(function(err){
+																if(err) console.log(err);
+															});
 															 res.status(404).send("User not Reachable");
 														}
-													
 													}
 												});
 											}
