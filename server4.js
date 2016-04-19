@@ -315,12 +315,12 @@ apiRoutes.post('/call', function(req, res) {
 																			callee.save(function(err){
 																				if(err) console.log(err);
 																			});
-<<<<<<< HEAD
-=======
+//<<<<<<< HEAD
+//=======
 																			msg.save(function(err){
 																					if(err) console.log(err);
 																				});
->>>>>>> origin/master
+//>>>>>>> origin/master
 																			//console.log(err);
 																			res.status(404).send("User not Reachable");  
 																		});
