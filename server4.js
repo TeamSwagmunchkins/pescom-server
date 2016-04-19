@@ -269,6 +269,11 @@ apiRoutes.post('/call', function(req, res) {
 														res.status(404).send('Not Found');
 													}
 													else{
+														var msg=new MsgPending({
+																to_phone_number:req.body.to_phone_number,
+																from_phone_number:req.body.from_phone_number,
+																message: "you have a missed call from "+req.body.from_phone_number
+														});
 														port1 = callee.port;
 														host = callee.ip_address;
 														var s = new net.Socket();
@@ -290,6 +295,9 @@ apiRoutes.post('/call', function(req, res) {
 																			m = message.toString("utf8").slice(0,-2).split(":");
 																			console.log(m);
 																			if(m[0]=="0") {
+																				msg.save(function(err){
+																					if(err) console.log(err);
+																				});
 																				res.status(403).send("Client BUSY");
 																			}
 																			else{
@@ -307,20 +315,31 @@ apiRoutes.post('/call', function(req, res) {
 																			callee.save(function(err){
 																				if(err) console.log(err);
 																			});
+<<<<<<< HEAD
+=======
+																			msg.save(function(err){
+																					if(err) console.log(err);
+																				});
+>>>>>>> origin/master
 																			//console.log(err);
 																			res.status(404).send("User not Reachable");  
 																		});
 												
 																}
 																else{
+																	msg.save(function(err){
+																			if(err) console.log(err);
+																		});
 																  res.status(404).send("User not Reachable");
 																}  
 														}
 														else
 														{
+															msg.save(function(err){
+																if(err) console.log(err);
+															});
 															 res.status(404).send("User not Reachable");
 														}
-													
 													}
 												});
 											}
@@ -413,7 +432,11 @@ apiRoutes.post('/message_receive',function(req,res){
 // route to return all users 
 apiRoutes.get('/users', function(req, res) {
 		User.find({}, function(err, users) {
-			res.json(users);
+			phone_numbers=[];
+			for(var i in users){
+				phone_numbers.push({"phone_number":users[i].phone_number});
+			}
+			res.json(phone_numbers);
 		});
 });   
 
