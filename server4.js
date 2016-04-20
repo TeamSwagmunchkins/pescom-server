@@ -60,7 +60,7 @@ function validateUserName(uName){
 var setupRoute = express.Router();
 
 setupRoute.use(function(req,res,next){
-		if(!validateUserName(req.body.phone_number)){
+		if(req.body.phone_number && !validateUserName(req.body.phone_number)){
 			res.status(406).send("Incorrect Phone number");
 		}
 		else{
