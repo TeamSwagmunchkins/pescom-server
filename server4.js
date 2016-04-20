@@ -46,7 +46,14 @@ app.use(morgan('dev'));
 // =======================
 
 function validateUserName(uName){
-  return true;
+  if(uName.length == 10)
+  {
+  	return true;
+  }
+  else
+  {
+  	return false;
+  }
 }
 
 //for registration of user
@@ -54,7 +61,7 @@ var setupRoute = express.Router();
 
 setupRoute.use(function(req,res,next){
 		if(!validateUserName(req.body.phone_number)){
-			res.json({success: false,message: 'Setup Failed. Enter Valid Username'});
+			res.status(406).send("Incorrect Phone number");
 		}
 		else{
 			next();
