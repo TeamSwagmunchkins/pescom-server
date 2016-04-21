@@ -206,7 +206,7 @@ apiRoutes.use(function(req, res, next) {
 				}
 });
 
-//pinging to update IP of a client
+//pinging to update IP of a client    
 apiRoutes.post('/update_ip', function(req, res) {
 					//find the phone_number of the client in the database 
 					//and update its ip_address field to the new ip_address provided by the client and mark him as active.
@@ -221,7 +221,7 @@ apiRoutes.post('/update_ip', function(req, res) {
 							if (!user) {
 								res.status(401).send("Unauthorized");
 							}
-							else{
+							else{ 
 								user["ip_address"] = req.body.ip_address;
 								user["port"] = req.body.port;
 								user["active"] = true;
@@ -237,6 +237,14 @@ apiRoutes.post('/update_ip', function(req, res) {
 											if(err){
 												console.log(err);
 											}
+											var socket = new JsonSocket(new net.Socket());
+											socket.connect(req.body.port,req.body.ip_address);
+											socket.on('connect',function(){
+											socket.sendMessage("3:"+msgs.length+"#!");	
+											});
+											socket.on("error",function(){
+												console.log("socket error");
+											});
 											res.json({message:"IP Updated successfully",pendingMsgCount:msgs.length});
 								});
 								
